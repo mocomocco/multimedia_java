@@ -12,12 +12,11 @@ import javax.swing.*;
  */
 public class SimpleDraw extends JFrame implements MouseListener, MouseMotionListener,ActionListener {
     private static final long serialVersionUID = 42L;
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
-     */
+
     int lastx=0,lasty=0,newx,newy;
     DrawPanel panel=new DrawPanel();
-    JColorChooser colorchooser=new JColorChooser();
+
+    Color backgroundcolor=Color.white;
 
     public void mouseDragged(MouseEvent arg0) {
         // TODO Auto-generated method stub
@@ -29,145 +28,149 @@ public class SimpleDraw extends JFrame implements MouseListener, MouseMotionList
     }
 
 
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
-     */
-    @Override
     public void mouseMoved(MouseEvent arg0) {
         // TODO Auto-generated method stub
         lastx=arg0.getX();
         lasty=arg0.getY();
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-     */
-    //@Override
+
     public void mouseClicked(MouseEvent arg0) {
         // TODO Auto-generated method stub
 
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-     */
-    //@Override
+
     public void mousePressed(MouseEvent arg0) {
         // TODO Auto-generated method stub
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-     */
-    //@Override
+
     public void mouseReleased(MouseEvent arg0) {
         // TODO Auto-generated method stub
 
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-     */
-    //@Override
     public void mouseEntered(MouseEvent e) {
         // TODO Auto-generated method stub
 
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-     */
-    //@Override
+
     public void mouseExited(MouseEvent e) {
         // TODO Auto-generated method stub
 
     }
 
+    private void AddItemToMenu(JMenu menu,String itemlabel,String command){
+        JMenuItem item = new JMenuItem(itemlabel);
+        item.addActionListener(this);
+        item.setActionCommand(command);
+        menu.add(item);
+    }
+
+    private void AddSubitemToItem(JMenuItem item,String subitemlabel,String command){
+        JMenuItem subitem1 = new JMenuItem(subitemlabel);
+        subitem1.addActionListener(this);
+        subitem1.setActionCommand(command);
+        item.add(item);
+    }
+
+    private void setcolormenu(JMenuItem pen){
+        AddSubitemToItem(colormenu,"red","color_255000000");
+        AddSubitemToItem(colormenu,"blue","color_000000255");
+        AddSubitemToItem(colormenu,"green","color_000255000");
+        AddSubitemToItem(colormenu,"yellow","color_255255000");
+        AddSubitemToItem(colormenu,"black","color_000000000");
+        AddSubitemToItem(colormenu,"others","color_other");
+        menubar.add(colormenu);
+}
+
+    private void settoolmenu(JMenuBar menubar){
+        JMenu toolmenu = new JMenu("tool" );
+        AddItemToMenu(toolmenu,"pen","tool_pen");
+        AddItemToMenu(toolmenu,"eraser","tool_eraser");
+        menubar.add(toolmenu);
+    }
+
+    private void setweightmenu(JMenuBar menubar){
+        JMenu weigthmenu = new JMenu("line weight");
+
+        AddItemToMenu(weigthmenu,"thin","weigth_0.5");
+        AddItemToMenu(weigthmenu,"standard","weigth_3");
+        AddItemToMenu(weigthmenu,"thick","weigth_10");
+        AddItemToMenu(weigthmenu,"others","weigth_other");
+
+        menubar.add(weigthmenu);
+    }
 
     private void init(){
         this.setTitle("SimplDraw");
         this.setSize(300,200);
+
         JMenuBar menubar = new JMenuBar();
-        JMenu colormenu = new JMenu("color");
-
-        JMenuItem item1 = new JMenuItem("red");
-        item1.addActionListener(this);
-        item1.setActionCommand("red");
-
-        colormenu.add(item1);
-
-        JMenuItem item2 = new JMenuItem("blue");
-        item2.addActionListener(this);
-        item2.setActionCommand("blue");
-
-        colormenu.add(item2);
-
-        JMenuItem item3 = new JMenuItem("green");
-        item3.addActionListener(this);
-        item3.setActionCommand("green");
-
-        colormenu.add(item3);
-
-        JMenuItem item4 = new JMenuItem("yellow");
-        item4.addActionListener(this);
-        item4.setActionCommand("yellow");
-
-        colormenu.add(item4);
-
-        JMenuItem item5 = new JMenuItem("black");
-        item5.addActionListener(this);
-        item5.setActionCommand("black");
-
-        colormenu.add(item5);
-
-        JMenuItem item6 = new JMenuItem("others");
-        item6.addActionListener(this);
-        item6.setActionCommand("other");
-
-        /*getContentPane().add(colorchooser, BorderLayout.CENTER);
-        getContentPane().add(colorLabel, BorderLayout.PAGE_START);
-        getContentPane().add(selectPanel, BorderLayout.PAGE_END);
-        JMenuItem subitem1 = new JMenuItem("Iced Coffee");
-        subitem1.addActionListener(this);
-        subitem1.setActionCommand("Iced Coffee");
-        JMenuItem subitem2 = new JMenuItem("Iced Tea");
-        subitem2.addActionListener(this);
-        subitem2.setActionCommand("Iced Tea");
-        JMenuItem subitem3 = new JMenuItem("Orange juice");
-        subitem3.addActionListener(this);
-        subitem3.setActionCommand("Orange juice");
-
-        item3.add(subitem1);
-        item3.add(subitem2);
-        item3.add(subitem3);
-*/
-        colormenu.add(item6);
-
-        menubar.add(colormenu);
+        this.settoolmenu(menubar);
+        this.setcolormenu(menubar);
+        this.setweightmenu(menubar);
 
         setJMenuBar(menubar);
 
+        panel.setBackground(backgroundcolor);
         this.addMouseMotionListener(this);
         this.getContentPane().add(panel);
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
+
+    private void colorset(String command) {
+        if (command.equals("other")) {
+            JColorChooser colorchooser = new JColorChooser();
+            Color color = colorchooser.showDialog(this, "choose a color", Color.blue);
+            panel.setPenColor(color);
+        } else {
+            int R = Integer.parseInt(command.substring(0, 3));
+            int G = Integer.parseInt(command.substring(3, 6));
+            int B = Integer.parseInt(command.substring(6, 9));
+            Color color = new Color(R, G, B);
+            panel.setPenColor(color);
+        }
+    }
+
+    JSliderPanel weigthframe=new JSliderPanel("weigth level",this);
+    Float widthlevel;
+    private void callweigthslider(){
+        weigthframe.setVisible(true);
+
+    }
+
+    public void valueofslider(float fps){
+        panel.setPenWidth(fps);
+    }
+
+    private void weigthset(String command){
+        if (command.equals("other")) {
+            this.callweigthslider();
+        } else {
+            widthlevel = Float.parseFloat(command);
+            panel.setPenWidth(widthlevel);
+        }
+    }
+    private void toolset(String command){
+        if (command.equals("eraser")) {
+            panel.setPenColor(backgroundcolor);
+        } /*else if{
+
+        }*/
+    }
+
     public void actionPerformed(ActionEvent e){
         String command = e.getActionCommand();
-        if(command == "red"){
-            panel.setPenColor(Color.red);
-        }else if(command =="blue"){
-            panel.setPenColor(Color.blue);
-        }else if(command =="green"){
-            panel.setPenColor(Color.green);
-        }else if(command =="yellow"){
-            panel.setPenColor(Color.yellow);
-        }else if(command =="black"){
-            panel.setPenColor(Color.black);
-        }else if(command =="other") {
-            JColorChooser colorchooser = new JColorChooser();
-            Color color=colorchooser.showDialog(this,"choose a color",Color.blue);
-            panel.setPenColor(color);
+        if(command.substring(0,5).equals("color")){
+            colorset(command.substring(6));
+        }else if(command.substring(0,6).equals("weigth")){
+            weigthset(command.substring(7));
+        }else if(command.substring(0,4).equals("tool")){
+            toolset(command.substring(5));
         }
     }
     /**
