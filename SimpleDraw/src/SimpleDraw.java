@@ -69,39 +69,54 @@ public class SimpleDraw extends JFrame implements MouseListener, MouseMotionList
         menu.add(item);
     }
 
-    private void AddSubitemToItem(JMenuItem item,String subitemlabel,String command){
-        JMenuItem subitem1 = new JMenuItem(subitemlabel);
-        subitem1.addActionListener(this);
-        subitem1.setActionCommand(command);
-        item.add(item);
+    private JMenu AddItemWithSubitemToMenu(JMenu menu,String itemlabel,String command){
+        JMenu item = new JMenu(itemlabel);
+        menu.add(item);
+        return item;
     }
 
-    private void setcolormenu(JMenuItem pen){
-        AddSubitemToItem(colormenu,"red","color_255000000");
-        AddSubitemToItem(colormenu,"blue","color_000000255");
-        AddSubitemToItem(colormenu,"green","color_000255000");
-        AddSubitemToItem(colormenu,"yellow","color_255255000");
-        AddSubitemToItem(colormenu,"black","color_000000000");
-        AddSubitemToItem(colormenu,"others","color_other");
-        menubar.add(colormenu);
-}
+
+
 
     private void settoolmenu(JMenuBar menubar){
         JMenu toolmenu = new JMenu("tool" );
-        AddItemToMenu(toolmenu,"pen","tool_pen");
-        AddItemToMenu(toolmenu,"eraser","tool_eraser");
+        JMenu penmenu=AddItemWithSubitemToMenu(toolmenu,"pen","tool_pen");
+        JMenu erasermenu=AddItemWithSubitemToMenu(toolmenu,"eraser","tool_eraser");
+        JMenu colormenu=AddItemWithSubitemToMenu(penmenu,"color","pen_color");
+        setcolormenu(colormenu);
+        JMenu penweigthmenu=AddItemWithSubitemToMenu(penmenu,"weigth","pen_weigth");
+        setweigthmenu(penweigthmenu);
+        //JMenu eraserweigthmenu=AddItemWithSubitemToMenu(erasermenu,"weigth","eraser_weigth");
+        //setweigthmenu(eraserweigthmenu);
+
         menubar.add(toolmenu);
     }
 
-    private void setweightmenu(JMenuBar menubar){
-        JMenu weigthmenu = new JMenu("line weight");
+    private void setcolormenu(JMenu colormenu){
+        AddItemToMenu(colormenu,"red","color_255000000");
+        AddItemToMenu(colormenu,"blue","color_000000255");
+        AddItemToMenu(colormenu,"green","color_000255000");
+        AddItemToMenu(colormenu,"yellow","color_255255000");
+        AddItemToMenu(colormenu,"black","color_000000000");
+        AddItemToMenu(colormenu,"others","color_other");
+    }
 
+    private void setweigthmenu(JMenu weigthmenu){
         AddItemToMenu(weigthmenu,"thin","weigth_0.5");
         AddItemToMenu(weigthmenu,"standard","weigth_3");
         AddItemToMenu(weigthmenu,"thick","weigth_10");
         AddItemToMenu(weigthmenu,"others","weigth_other");
+    }
 
-        menubar.add(weigthmenu);
+    private void setfilemenu(JMenuBar menubar){
+        JMenu filemenu = new JMenu("File");
+
+        AddItemToMenu(filemenu,"thin","file_0.5");
+        AddItemToMenu(filemenu,"standard","file_3");
+        AddItemToMenu(filemenu,"thick","file_10");
+        AddItemToMenu(filemenu,"others","file_other");
+
+        menubar.add(filemenu);
     }
 
     private void init(){
@@ -110,8 +125,7 @@ public class SimpleDraw extends JFrame implements MouseListener, MouseMotionList
 
         JMenuBar menubar = new JMenuBar();
         this.settoolmenu(menubar);
-        this.setcolormenu(menubar);
-        this.setweightmenu(menubar);
+        this.setfilemenu(menubar);
 
         setJMenuBar(menubar);
 
@@ -138,6 +152,7 @@ public class SimpleDraw extends JFrame implements MouseListener, MouseMotionList
 
     JSliderPanel weigthframe=new JSliderPanel("weigth level",this);
     Float widthlevel;
+
     private void callweigthslider(){
         weigthframe.setVisible(true);
 
