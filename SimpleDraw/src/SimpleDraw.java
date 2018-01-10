@@ -1,7 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-
+import java.io.File;
+import java.io.IOException;
 /**
  *
  */
@@ -76,7 +77,10 @@ public class SimpleDraw extends JFrame implements MouseListener, MouseMotionList
     }
 
 
-
+    Float[] widthlevel=new Float[10];
+    int currenttoolnum=0;
+    JFileChooser fileChooser=new JFileChooser();
+    Color currentcolor=Color.black;
 
     private void settoolmenu(JMenuBar menubar){
         JMenu toolmenu = new JMenu("tool" );
@@ -85,9 +89,9 @@ public class SimpleDraw extends JFrame implements MouseListener, MouseMotionList
         JMenu colormenu=AddItemWithSubitemToMenu(penmenu,"color","pen_color");
         setcolormenu(colormenu);
         JMenu penweigthmenu=AddItemWithSubitemToMenu(penmenu,"weigth","pen_weigth");
-        setweigthmenu(penweigthmenu);
-        //JMenu eraserweigthmenu=AddItemWithSubitemToMenu(erasermenu,"weigth","eraser_weigth");
-        //setweigthmenu(eraserweigthmenu);
+        setweigthmenu(penweigthmenu,0);
+        JMenu eraserweigthmenu=AddItemWithSubitemToMenu(erasermenu,"weigth","eraser_weigth");
+        setweigthmenu(eraserweigthmenu,1);
 
         menubar.add(toolmenu);
     }
@@ -101,20 +105,19 @@ public class SimpleDraw extends JFrame implements MouseListener, MouseMotionList
         AddItemToMenu(colormenu,"others","color_other");
     }
 
-    private void setweigthmenu(JMenu weigthmenu){
-        AddItemToMenu(weigthmenu,"thin","weigth_0.5");
-        AddItemToMenu(weigthmenu,"standard","weigth_3");
-        AddItemToMenu(weigthmenu,"thick","weigth_10");
-        AddItemToMenu(weigthmenu,"others","weigth_other");
+    private void setweigthmenu(JMenu weigthmenu,int toolnum){
+        AddItemToMenu(weigthmenu,"thin","weigth_"+toolnum+"_0.5");
+        AddItemToMenu(weigthmenu,"standard","weigth_"+toolnum+"_3");
+        AddItemToMenu(weigthmenu,"thick","weigth_"+toolnum+"_10");
+        AddItemToMenu(weigthmenu,"others","weigth_"+toolnum+"_other");
     }
 
     private void setfilemenu(JMenuBar menubar){
         JMenu filemenu = new JMenu("File");
 
-        AddItemToMenu(filemenu,"thin","file_0.5");
-        AddItemToMenu(filemenu,"standard","file_3");
-        AddItemToMenu(filemenu,"thick","file_10");
-        AddItemToMenu(filemenu,"others","file_other");
+        AddItemToMenu(filemenu,"New","file_new");
+        AddItemToMenu(filemenu,"Open","file_open");
+        AddItemToMenu(filemenu,"Save","file_save");
 
         menubar.add(filemenu);
     }
@@ -129,29 +132,32 @@ public class SimpleDraw extends JFrame implements MouseListener, MouseMotionList
 
         setJMenuBar(menubar);
 
+        widthlevel[0]=3.0f;
+        widthlevel[1]=3.0f;
         panel.setBackground(backgroundcolor);
         this.addMouseMotionListener(this);
         this.getContentPane().add(panel);
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
     }
 
     private void colorset(String command) {
         if (command.equals("other")) {
             JColorChooser colorchooser = new JColorChooser();
-            Color color = colorchooser.showDialog(this, "choose a color", Color.blue);
-            panel.setPenColor(color);
+            currentcolor = colorchooser.showDialog(this, "choose a color", Color.blue);
+            panel.setPenColor(currentcolor);
         } else {
             int R = Integer.parseInt(command.substring(0, 3));
             int G = Integer.parseInt(command.substring(3, 6));
             int B = Integer.parseInt(command.substring(6, 9));
-            Color color = new Color(R, G, B);
-            panel.setPenColor(color);
+            currentcolor = new Color(R, G, B);
+            panel.setPenColor(currentcolor);
         }
     }
 
     JSliderPanel weigthframe=new JSliderPanel("weigth level",this);
-    Float widthlevel;
+
 
     private void callweigthslider(){
         weigthframe.setVisible(true);
@@ -162,30 +168,58 @@ public class SimpleDraw extends JFrame implements MouseListener, MouseMotionList
         panel.setPenWidth(fps);
     }
 
-    private void weigthset(String command){
+    private void weigthset(String command,int toolnum){
+        if(toolnum==0){
+            panel.setPenColor(currentcolor);
+        }else if (toolnum==1){
+            currenttoolnum=1;
+            panel.setPenWidth(widthlevel[currenttoolnum]);
+            panel.setPenColor(backgroundcolor);
+
+           // panel.openFile(new File("../../../Desktop/a.png"));//..(java)/..(Documents)/Desktop/a.jpg
+        }
+
         if (command.equals("other")) {
             this.callweigthslider();
         } else {
-            widthlevel = Float.parseFloat(command);
-            panel.setPenWidth(widthlevel);
+            widthlevel[toolnum] = Float.parseFloat(command);
+            panel.setPenWidth(widthlevel[toolnum]);
         }
     }
-    private void toolset(String command){
-        if (command.equals("eraser")) {
-            panel.setPenColor(backgroundcolor);
-        } /*else if{
 
-        }*/
+    private void aboutfile(String command){
+        if(command.equals("new")){
+            panel.newFile();
+        }else if (command.equals("save")){
+            int returnVal = fileChooser.showSaveDialog(this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                panel.saveFile(fileChooser.getSelectedFile());
+            }
+        }else if (command.equals("open")){
+            int returnVal = fileChooser.showOpenDialog(this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                try {
+                    panel.openFile(fileChooser.getSelectedFile());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public void actionPerformed(ActionEvent e){
         String command = e.getActionCommand();
         if(command.substring(0,5).equals("color")){
+            currenttoolnum=0;
+            panel.setPenWidth(widthlevel[currenttoolnum]);
             colorset(command.substring(6));
+            //File output=new File("output.jpg");
+            //panel.saveFile(output);
         }else if(command.substring(0,6).equals("weigth")){
-            weigthset(command.substring(7));
-        }else if(command.substring(0,4).equals("tool")){
-            toolset(command.substring(5));
+            weigthset(command.substring(9), Integer.parseInt(command.substring(7,8)));
+
+        }else if(command.substring(0,4).equals("file")){
+            aboutfile(command.substring(5));
         }
     }
     /**
