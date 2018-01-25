@@ -5,7 +5,9 @@ import java.awt.image.AffineTransformOp;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
-import javax.imageio.ImageIO;
+import javax.imageio.*;
+import javax.imageio.stream.ImageOutputStream;
+import java.io.ByteArrayOutputStream;
 
 import static java.lang.Double.max;
 import static java.lang.Double.min;
@@ -21,12 +23,13 @@ public class DrawPanel extends JPanel{
     private static final long serialVersionUID = 42L;
     BufferedImage bufferImage=null;
     Graphics2D bufferGraphics=null;
+    int windoww,windowh;
 
     private void createBuffer(int width, int height) {
         //バッファ用のImageとGraphicsを用意する
         bufferImage = new BufferedImage(width, height,BufferedImage.TYPE_INT_BGR);
         bufferGraphics=bufferImage.createGraphics(); //getGraphicsと似ているが、戻り値がGraphics2D。
-        bufferGraphics.setBackground(Color.white);
+        bufferGraphics.setBackground(Color.pink);
         bufferGraphics.clearRect(0, 0, width, height); //バッファクリア
     }
 
@@ -40,18 +43,18 @@ public class DrawPanel extends JPanel{
     public void setPenWidth(Float newwidthlevel){
         currentwidthlevel=newwidthlevel;
     }
-    int w,h;
+
     public void drawLine(int x1, int y1, int x2, int y2){
         if(null==bufferGraphics) {
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            w = screenSize.width;
-            h = screenSize.height;
-            this.createBuffer(w,h);  //バッファをまだ作ってなければ作る
+            windoww = screenSize.width;
+            windowh = screenSize.height;
+            this.createBuffer(windoww,windowh);  //バッファをまだ作ってなければ作る
         }
         bufferGraphics.setColor(currentColor);
         BasicStroke wideStroke = new BasicStroke(currentwidthlevel);
         bufferGraphics.setStroke(wideStroke);
-        bufferGraphics.drawLine(x1, y1-40, x2, y2-40); // バッファに描画する
+        bufferGraphics.drawLine(x1, y1, x2, y2); // バッファに描画する
         repaint();//再描画するためpaintComponentを呼び出す。
     }
 
@@ -77,20 +80,29 @@ public class DrawPanel extends JPanel{
             System.out.println("Error: reading file="+file2open.getName());
             return;
         }
-        //画像に合わせたサイズでbufferImageとbufferGraphicsを作りなおして画像を読み込む
-        //ImageIO.readの戻り値をbufferImageに代入するのでは駄目みたいです。
+
         int width=pictureImage.getWidth();
         int height=pictureImage.getHeight();
         this.createBuffer(width,height);
-        double scale=Double.min(w/width,h/height);
-        //BufferedImage destImage=resizeImage(pictureImage,scale);
-        bufferGraphics.drawImage(pictureImage,0,0,this);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        windoww = screenSize.width;
+        windowh = screenSize.height;
+        double scale=Double.max(1,Double.max(width/windoww,height/windowh));
+        BufferedImage destImage=resizeImage(pictureImage,1/scale);
+        Graphics2D newbufferGraphics=null;
+        //newbufferGraphics.setBackground(Color.green);
+        newbufferGraphics=bufferImage.createGraphics(); //getGraphicsと似ているが、戻り値がGraphics2D。
+        //newbufferGraphics.setBackground(Color.white);
+        newbufferGraphics.clearRect(0, 0, width, height); //バッファクリア
+        newbufferGraphics.drawImage(destImage,0,0,this);
         repaint(); //画像を表示するためにpaintComponentを呼ぶ
     }
 
 
     public void saveFile(File file2save) {
         try {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageOutputStream ios = ImageIO.createImageOutputStream(os);
             BufferedImage destImage = resizeImage(bufferImage,1);
             ImageIO.write(destImage, "jpg", file2save);
         } catch (Exception e) {
@@ -101,6 +113,7 @@ public class DrawPanel extends JPanel{
 
     public void newFile(){
         bufferImage=null;
+        bufferGraphics=null;
         repaint();
     }
 

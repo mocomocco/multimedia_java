@@ -3,6 +3,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+
 /**
  *
  */
@@ -15,8 +16,10 @@ public class SimpleDraw extends JFrame implements MouseListener, MouseMotionList
     private static final long serialVersionUID = 42L;
 
     int lastx=0,lasty=0,newx,newy;
+    DrawPanel base=new DrawPanel();
+    DrawPanel background=new DrawPanel();
     DrawPanel panel=new DrawPanel();
-
+    DrawPanel layer=new DrawPanel();
     Color backgroundcolor=Color.white;
 
     public void mouseDragged(MouseEvent arg0) {
@@ -134,9 +137,20 @@ public class SimpleDraw extends JFrame implements MouseListener, MouseMotionList
 
         widthlevel[0]=3.0f;
         widthlevel[1]=3.0f;
-        panel.setBackground(backgroundcolor);
-        this.addMouseMotionListener(this);
+
+        panel.setBackground(Color.white);
         this.getContentPane().add(panel);
+
+        //background.setSize(new Dimension(1296, 678));
+        //background.setBackground(Color.blue);
+        //panel.setBackground(new Color(0,0,0,0));
+
+        //panel.setBackground(Color.pink);
+        panel.addMouseMotionListener(this);
+        //base.add(background);
+       // panel.setPreferredSize(new Dimension(200, 678));
+        //background.add(panel);
+        //this.getContentPane().add(panel);;
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -199,7 +213,17 @@ public class SimpleDraw extends JFrame implements MouseListener, MouseMotionList
             int returnVal = fileChooser.showOpenDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
-                    panel.openFile(fileChooser.getSelectedFile());
+                    /*panel.setBackground(Color.pink);
+                    panel.addMouseMotionListener(this);
+                    this.getContentPane().add(background);
+                    panel.setPreferredSize(new Dimension(1296, 678));
+                    background.add(panel);*/
+                    panel.setLayout(new BorderLayout());
+                    layer.setBackground(Color.green);
+                    layer.setPreferredSize(new Dimension(1296, 678));
+                    panel.add(layer,BorderLayout.EAST);
+                    layer.openFile(fileChooser.getSelectedFile());
+                    this.setVisible(true);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
